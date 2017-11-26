@@ -16,7 +16,7 @@ namespace DiceRollerUtils
 
         public string CalculateRoll(string fullRoll)
         {
-            const string pattern = @"([+|-]?\/?d\d+)|([+|-]\s?\d+)";
+            const string pattern = @"([+|-]?\/?[\d+]?d\d+)|([+|-]?\d+)";
             var regExp = new Regex(pattern, RegexOptions.IgnoreCase);
 
             var rollDescription = new List<string>();
@@ -27,24 +27,33 @@ namespace DiceRollerUtils
                 string expression;
                 bool isDiceRoll = false;
 
-                var diceMatch = Regex.Match(m.Value, @"(?<posneg>[+|-]?)\/?d(?<sides>\d+)", RegexOptions.IgnoreCase);
+                var diceMatch = Regex.Match(m.Value, @"(?<posneg>[+|-]?)\/?(?<multiplier>[\d+]?)d(?<sides>\d+)", RegexOptions.IgnoreCase);
                 if (diceMatch.Length > 0)
                 {
                     isDiceRoll = true;
+                    string posneg = diceMatch.Groups["posneg"].Value == "-" ? "-" : "+";
+                    int multiplier = String.IsNullOrWhiteSpace(diceMatch.Groups["multiplier"].Value) ? 1 : Int32.Parse(diceMatch.Groups["multiplier"].Value);
                     int sides = Int32.Parse(diceMatch.Groups["sides"].Value);
-                    string posneg = diceMatch.Groups["posneg"].Value == "-" ? "-" : "";
 
-                    expression = $@"{posneg}{RollDice(sides)}";
+                    for (var i = 0; i < multiplier; i++)
+                    {
+                        expression = $@"{posneg}{RollDice(sides)}";
+
+                        int rollValue = ExpressionToInt(expression);
+                        rollDescription.Add(IntToExpression(rollValue, isDiceRoll));
+
+                        totalRoll += rollValue;
+                    }
                 }
                 else
                 {
                     expression = m.Value;
+
+                    int rollValue = ExpressionToInt(expression);
+                    rollDescription.Add(IntToExpression(rollValue, isDiceRoll));
+
+                    totalRoll += rollValue;
                 }
-
-                int rollValue = ExpressionToInt(expression);
-                rollDescription.Add(IntToExpression(rollValue, isDiceRoll));
-
-                totalRoll += rollValue;
             }
             rollDescription.Add($"= {totalRoll}");
 
