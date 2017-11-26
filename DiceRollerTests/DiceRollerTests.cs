@@ -59,7 +59,7 @@ namespace DiceRollerTests
             numberGenerator.QueuedResults.Enqueue(10);
             numberGenerator.QueuedResults.Enqueue(3);
 
-            string result = diceRoller.CalculateRoll(@"d20 +4 +/d6 @fred");
+            string result = diceRoller.CalculateRoll(@"1d20 +4 +/d6 @fred");
             Assert.AreEqual("(+10) +4 (+3) = 17", result);
         }
     }
