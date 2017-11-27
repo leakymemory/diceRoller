@@ -16,7 +16,7 @@ namespace DiceRollerUtils
 
         public string CalculateRoll(string fullRoll)
         {
-            const string pattern = @"([+|-]?\/?[\d+]?d\d+)|([+|-]?\d+)";
+            const string pattern = @"([+|-]?\d*\/?d\d+)|([+|-]?\d+)";
             var regExp = new Regex(pattern, RegexOptions.IgnoreCase);
 
             var rollDescription = new List<string>();
@@ -27,7 +27,7 @@ namespace DiceRollerUtils
                 string expression;
                 bool isDiceRoll = false;
 
-                var diceMatch = Regex.Match(m.Value, @"(?<posneg>[+|-]?)\/?(?<multiplier>[\d+]?)d(?<sides>\d+)", RegexOptions.IgnoreCase);
+                var diceMatch = Regex.Match(m.Value, @"(?<posneg>[+|-]?)\/?(?<multiplier>[\d]+)?d(?<sides>\d+)", RegexOptions.IgnoreCase);
                 if (diceMatch.Length > 0)
                 {
                     isDiceRoll = true;

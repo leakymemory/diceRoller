@@ -41,6 +41,27 @@ namespace DiceRollerTests
         }
 
         [Test()]
+        public void CalculateRoll_LargeDiceMultiplier()
+        {
+            var diceRoller = new DiceRoller(numberGenerator);
+            numberGenerator.QueuedResults.Enqueue(15);
+            numberGenerator.QueuedResults.Enqueue(15);
+            numberGenerator.QueuedResults.Enqueue(15);
+            numberGenerator.QueuedResults.Enqueue(15);
+            numberGenerator.QueuedResults.Enqueue(15);
+            numberGenerator.QueuedResults.Enqueue(15);
+            numberGenerator.QueuedResults.Enqueue(15);
+            numberGenerator.QueuedResults.Enqueue(15);
+            numberGenerator.QueuedResults.Enqueue(15);
+            numberGenerator.QueuedResults.Enqueue(15);
+            numberGenerator.QueuedResults.Enqueue(15);
+            numberGenerator.QueuedResults.Enqueue(15);
+
+            string result = diceRoller.CalculateRoll(@"12d20 + 5");
+            Assert.AreEqual("(+15) (+15) (+15) (+15) (+15) (+15) (+15) (+15) (+15) (+15) (+15) (+15) +5 = 185", result);
+        }
+
+        [Test()]
         public void CalculateRoll_ComplicatedRollWithBadData()
         {
             var diceRoller = new DiceRoller(numberGenerator);
@@ -48,7 +69,7 @@ namespace DiceRollerTests
             numberGenerator.QueuedResults.Enqueue(3);
             numberGenerator.QueuedResults.Enqueue(5);
 
-            string result = diceRoller.CalculateRoll(@"d20 + fred -george !r#andom %%text IS $here + 5-3-/2d10 + 7-2");
+            string result = diceRoller.CalculateRoll(@"d20 + fred -george !r#andom %%text IS $here + 5-3-2d10 + 7-2");
             Assert.AreEqual("(+10) +5 -3 (-3) (-5) +7 -2 = 9", result);
         }
 
