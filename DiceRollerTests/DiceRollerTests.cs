@@ -41,7 +41,6 @@ namespace DiceRollerTests
         }
 
         [Test()]
-<<<<<<< HEAD
         public void CalculateRoll_LargeDiceMultiplier()
         {
             var diceRoller = new DiceRoller(numberGenerator);
@@ -63,8 +62,6 @@ namespace DiceRollerTests
         }
 
         [Test()]
-=======
->>>>>>> master
         public void CalculateRoll_ComplicatedRollWithBadData()
         {
             var diceRoller = new DiceRoller(numberGenerator);
@@ -72,11 +69,7 @@ namespace DiceRollerTests
             numberGenerator.QueuedResults.Enqueue(3);
             numberGenerator.QueuedResults.Enqueue(5);
 
-<<<<<<< HEAD
             string result = diceRoller.CalculateRoll(@"d20 + fred -george !r#andom %%text IS $here + 5-3-2d10 + 7-2");
-=======
-            string result = diceRoller.CalculateRoll(@"d20 + fred -george !r#andom %%text IS $here + 5-3-/2d10 + 7-2");
->>>>>>> master
             Assert.AreEqual("(+10) +5 -3 (-3) (-5) +7 -2 = 9", result);
         }
 
