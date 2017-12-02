@@ -83,5 +83,37 @@ namespace DiceRollerTests
             string result = diceRoller.CalculateRoll(@"1d20 +4 +/d6 @fred");
             Assert.AreEqual("(+10) +4 (+3) = 17", result);
         }
+
+        [Test()]
+        public void CalculateRoll_RollWithAdvantage()
+        {
+            var diceRoller = new DiceRoller(numberGenerator);
+            numberGenerator.QueuedResults.Enqueue(10);
+            numberGenerator.QueuedResults.Enqueue(3);
+
+            string result = diceRoller.CalculateRoll(@"d20+4 /adv");
+            Assert.AreEqual("(+10) +4 = 14", result);
+        }
+
+        [Test()]
+        public void CalculateRoll_RollWithDisadvantage()
+        {
+            var diceRoller = new DiceRoller(numberGenerator);
+            numberGenerator.QueuedResults.Enqueue(10);
+            numberGenerator.QueuedResults.Enqueue(3);
+
+            string result = diceRoller.CalculateRoll(@"d20+4 /dis");
+            Assert.AreEqual("(+3) +4 = 7", result);
+        }
+
+        [Test()]
+        public void CalculateRoll_RollWithAdvantageAndDisadvantage()
+        {
+            var diceRoller = new DiceRoller(numberGenerator);
+            numberGenerator.QueuedResults.Enqueue(10);
+
+            string result = diceRoller.CalculateRoll(@"d20+4 /dis /adv");
+            Assert.AreEqual("(+10) +4 = 14", result);
+        }
     }
 }
