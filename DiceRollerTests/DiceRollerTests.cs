@@ -136,6 +136,23 @@ namespace DiceRollerTests
         }
 
         [Test()]
+        public void CalculateRoll_RollWithAdvantageMoreComplicatedRoll()
+        {
+            var diceRoller = new DiceRoller(numberGenerator);
+            numberGenerator.QueuedResults.Enqueue(10);
+            numberGenerator.QueuedResults.Enqueue(3);
+            numberGenerator.QueuedResults.Enqueue(4);
+            numberGenerator.QueuedResults.Enqueue(6);
+            numberGenerator.QueuedResults.Enqueue(2);
+
+            string result;
+            int total = diceRoller.CalculateRoll(@"d20 +2d8 -7 +2 -1d4 adv", out result);
+
+            Assert.AreEqual(13, total);
+            Assert.AreEqual("Breakdown:\n  1d20: +10\n  2d8: +4 +6\n  1d4: -2\n  modifiers: -7 +2\n", result);
+        }
+
+        [Test()]
         public void CalculateRoll_RollWithDisadvantage()
         {
             var diceRoller = new DiceRoller(numberGenerator);
