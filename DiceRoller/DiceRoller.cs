@@ -5,6 +5,13 @@ using System.Text.RegularExpressions;
 
 namespace DiceRollerUtils
 {
+    public enum RollType
+    {
+        normalRoll,
+        withAdvantage,
+        withDisadvantage
+    };
+
     public class DiceRoller
     {
         private readonly IRandomNumberGenerator numberGenerator;
@@ -16,13 +23,24 @@ namespace DiceRollerUtils
             diceBucket = new SortedDictionary<int, List<string>>(Comparer<int>.Create((x, y) => y.CompareTo(x)));
         }
 
+        public RollType GetRollType(string fullRoll)
+        {
+            var match = Regex.Match(fullRoll, @"(?<advantage>\s+\/?adv)|(?<disadvantage>\s+\/?dis)", RegexOptions.IgnoreCase);
+            if (match.Length == 0)
+            {
+                return RollType.normalRoll;
+            }
+
+            return (match.Groups["disadvantage"].Length > 0) ? RollType.withDisadvantage : RollType.withAdvantage;
+        }
+
         public int CalculateRoll(string fullRoll, out string resultString)
         {
-            const string pattern = @"([+|-]?\s?\d*\/?d\d+)|([+|-]?\s?\d+)";
-            var regExp = new Regex(pattern, RegexOptions.IgnoreCase);
-
+            var rollType = GetRollType(fullRoll);
             int totalRoll = 0;
+            const string pattern = @"([+|-]?\s?\d*\/?d\d+)|([+|-]?\s?\d+)";
 
+            var regExp = new Regex(pattern, RegexOptions.IgnoreCase);
             foreach (Match m in regExp.Matches(fullRoll))
             {
                 string expression;
@@ -36,7 +54,7 @@ namespace DiceRollerUtils
 
                     for (var i = 0; i < multiplier; i++)
                     {
-                        expression = $@"{posneg}{RollDice(sides)}";
+                        expression = $@"{posneg}{RollDice(sides, rollType)}";
 
                         int rollValue = ExpressionToInt(expression);
 
@@ -80,9 +98,25 @@ namespace DiceRollerUtils
             }
         }
 
-        private int RollDice(int sides)
+        private int RollDice(int sides, RollType rollType)
         {
-            return this.numberGenerator.Generate(1, sides + 1);
+            int roll = this.numberGenerator.Generate(1, sides + 1);
+
+            if (sides == 20 && rollType != RollType.normalRoll)
+            {
+                int secondRoll = this.numberGenerator.Generate(1, sides + 1);
+                if (rollType == RollType.withAdvantage)
+                {
+                    roll = (secondRoll > roll) ? secondRoll : roll;
+                    // TODO: We need to record the throw away rolls.
+                }
+                else
+                {
+                    roll = (secondRoll < roll) ? secondRoll : roll;
+                }
+            }
+
+            return roll;
         }
 
         private static string IntToExpression(int value)
