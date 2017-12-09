@@ -118,7 +118,7 @@ namespace DiceRollerTests
             int total = diceRoller.CalculateRoll(@"2d20+4 /adv", out result);
 
             Assert.AreEqual(34, total);
-            Assert.AreEqual("Breakdown:\n  2d20: +10 +20\n  modifiers: +4\n", result);
+            Assert.AreEqual("Breakdown:\n  2d20: +10 +20\n  modifiers: +4\n  Thrown out: 3 6\n", result);
         }
 
         [Test()]
@@ -132,7 +132,7 @@ namespace DiceRollerTests
             int total = diceRoller.CalculateRoll(@"d20+4 adv", out result);
 
             Assert.AreEqual(14, total);
-            Assert.AreEqual("Breakdown:\n  1d20: +10\n  modifiers: +4\n", result);
+            Assert.AreEqual("Breakdown:\n  1d20: +10\n  modifiers: +4\n  Thrown out: 3\n", result);
         }
 
         [Test()]
@@ -149,7 +149,7 @@ namespace DiceRollerTests
             int total = diceRoller.CalculateRoll(@"d20 +2d8 -7 +2 -1d4 adv", out result);
 
             Assert.AreEqual(13, total);
-            Assert.AreEqual("Breakdown:\n  1d20: +10\n  2d8: +4 +6\n  1d4: -2\n  modifiers: -7 +2\n", result);
+            Assert.AreEqual("Breakdown:\n  1d20: +10\n  2d8: +4 +6\n  1d4: -2\n  modifiers: -7 +2\n  Thrown out: 3\n", result);
         }
 
         [Test()]
@@ -163,7 +163,7 @@ namespace DiceRollerTests
             int total = diceRoller.CalculateRoll(@"d20+4 /dis", out result);
 
             Assert.AreEqual(7, total);
-            Assert.AreEqual("Breakdown:\n  1d20: +3\n  modifiers: +4\n", result);
+            Assert.AreEqual("Breakdown:\n  1d20: +3\n  modifiers: +4\n  Thrown out: 10\n", result);
         }
 
         [Test()]

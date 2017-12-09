@@ -16,6 +16,7 @@ namespace DiceRollerUtils
     {
         private readonly IRandomNumberGenerator numberGenerator;
         private SortedDictionary<int, List<string>> diceBucket;
+        private List<int> throwAwayRolls = new List<int>();
 
         public DiceRoller(IRandomNumberGenerator numberGenerator = null)
         {
@@ -81,6 +82,12 @@ namespace DiceRollerUtils
                 fullDescription += $"  {diceLabel} {String.Join(" ", diceBucket[key].ToArray())}\n";
             }
 
+            // Output the rolls that were tossed out because of advantage/disadvantage.
+            if (throwAwayRolls.Count > 0)
+            {
+                fullDescription += $"  Thrown out: {String.Join(" ", throwAwayRolls.ToArray())}\n";
+            }
+
             resultString = fullDescription;
 
             return totalRoll;
@@ -107,11 +114,12 @@ namespace DiceRollerUtils
                 int secondRoll = this.numberGenerator.Generate(1, sides + 1);
                 if (rollType == RollType.withAdvantage)
                 {
+                    throwAwayRolls.Add((secondRoll > roll) ? roll : secondRoll);
                     roll = (secondRoll > roll) ? secondRoll : roll;
-                    // TODO: We need to record the throw away rolls.
                 }
                 else
                 {
+                    throwAwayRolls.Add((secondRoll < roll) ? roll : secondRoll);
                     roll = (secondRoll < roll) ? secondRoll : roll;
                 }
             }
