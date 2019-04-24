@@ -5,74 +5,131 @@ using System.Text.RegularExpressions;
 
 namespace DiceRollerUtils
 {
+    public enum RollType
+    {
+        normalRoll,
+        withAdvantage,
+        withDisadvantage
+    };
+
     public class DiceRoller
     {
         private readonly IRandomNumberGenerator numberGenerator;
+        private SortedDictionary<int, List<string>> diceBucket;
+        private List<int> throwAwayRolls = new List<int>();
 
         public DiceRoller(IRandomNumberGenerator numberGenerator = null)
         {
             this.numberGenerator = numberGenerator ?? new RandomNumberGenerator();
+            diceBucket = new SortedDictionary<int, List<string>>(Comparer<int>.Create((x, y) => y.CompareTo(x)));
         }
 
-        public string CalculateRoll(string fullRoll)
+        public RollType GetRollType(string fullRoll)
         {
-            const string pattern = @"([+|-]?\d*\/?d\d+)|([+|-]?\d+)";
-            var regExp = new Regex(pattern, RegexOptions.IgnoreCase);
+            var match = Regex.Match(fullRoll, @"(?<advantage>\s+\/?adv)|(?<disadvantage>\s+\/?dis)", RegexOptions.IgnoreCase);
+            if (match.Length == 0)
+            {
+                return RollType.normalRoll;
+            }
 
-            var rollDescription = new List<string>();
+            return (match.Groups["disadvantage"].Length > 0) ? RollType.withDisadvantage : RollType.withAdvantage;
+        }
+
+        public int CalculateRoll(string fullRoll, out string resultString)
+        {
+            var rollType = GetRollType(fullRoll);
             int totalRoll = 0;
+            const string pattern = @"([+|-]?\s?\d*\/?d\d+)|([+|-]?\s?\d+)";
 
+            var regExp = new Regex(pattern, RegexOptions.IgnoreCase);
             foreach (Match m in regExp.Matches(fullRoll))
             {
                 string expression;
-                bool isDiceRoll = false;
 
-                var diceMatch = Regex.Match(m.Value, @"(?<posneg>[+|-]?)\/?(?<multiplier>[\d]+)?d(?<sides>\d+)", RegexOptions.IgnoreCase);
+                var diceMatch = Regex.Match(m.Value, @"(?<posneg>[+|-]?)\s?\/?(?<multiplier>[\d]+)?d(?<sides>\d+)", RegexOptions.IgnoreCase);
                 if (diceMatch.Length > 0)
                 {
-                    isDiceRoll = true;
                     string posneg = diceMatch.Groups["posneg"].Value == "-" ? "-" : "+";
                     int multiplier = String.IsNullOrWhiteSpace(diceMatch.Groups["multiplier"].Value) ? 1 : Int32.Parse(diceMatch.Groups["multiplier"].Value);
                     int sides = Int32.Parse(diceMatch.Groups["sides"].Value);
 
                     for (var i = 0; i < multiplier; i++)
                     {
-                        expression = $@"{posneg}{RollDice(sides)}";
+                        expression = $@"{posneg}{RollDice(sides, rollType)}";
 
                         int rollValue = ExpressionToInt(expression);
-                        rollDescription.Add(IntToExpression(rollValue, isDiceRoll));
 
                         totalRoll += rollValue;
+                        AddToDiceBucket(sides, IntToExpression(rollValue));
                     }
                 }
                 else
                 {
                     expression = m.Value;
+                    var rollValue = ExpressionToInt(expression);
 
-                    int rollValue = ExpressionToInt(expression);
-                    rollDescription.Add(IntToExpression(rollValue, isDiceRoll));
-
-                    totalRoll += rollValue;
+                    totalRoll += ExpressionToInt(expression);
+                    AddToDiceBucket(0, IntToExpression(rollValue));
                 }
             }
-            rollDescription.Add($"= {totalRoll}");
 
-            return String.Join(" ", rollDescription.ToArray());
-        }
+            var fullDescription = "Breakdown:\n";
 
-        private int RollDice(int sides)
-        {
-            return this.numberGenerator.Generate(1, sides + 1);
-        }
-
-        private static string IntToExpression(int value, bool isDiceRoll)
-        {
-            if (isDiceRoll)
+            foreach (var key in diceBucket.Keys)
             {
-                return value > 0 ? $"(+{value})" : $"({value})";
+                var diceLabel = key == 0 ? "modifiers:" : $"{diceBucket[key].Count}d{key}:";
+                    
+                fullDescription += $"  {diceLabel} {String.Join(" ", diceBucket[key].ToArray())}\n";
             }
 
-            return value > 0 ? $"+{value}" : $"{value}";
+            // Output the rolls that were tossed out because of advantage/disadvantage.
+            if (throwAwayRolls.Count > 0)
+            {
+                fullDescription += $"  Thrown out: {String.Join(" ", throwAwayRolls.ToArray())}\n";
+            }
+
+            resultString = fullDescription;
+
+            return totalRoll;
+        }
+
+        private void AddToDiceBucket(int sides, string expression)
+        {
+            if (diceBucket.TryGetValue(sides, out List<string> rolls))
+            {
+                rolls.Add(expression);
+            }
+            else
+            {
+                diceBucket.Add(sides, new List<string> { expression });
+            }
+        }
+
+        private int RollDice(int sides, RollType rollType)
+        {
+            int roll = this.numberGenerator.Generate(1, sides + 1);
+
+            if (sides == 20 && rollType != RollType.normalRoll)
+            {
+                int secondRoll = this.numberGenerator.Generate(1, sides + 1);
+                if (rollType == RollType.withAdvantage)
+                {
+                    throwAwayRolls.Add((secondRoll > roll) ? roll : secondRoll);
+                    roll = (secondRoll > roll) ? secondRoll : roll;
+                }
+                else
+                {
+                    throwAwayRolls.Add((secondRoll < roll) ? roll : secondRoll);
+                    roll = (secondRoll < roll) ? secondRoll : roll;
+                }
+            }
+
+            return roll;
+        }
+
+        private static string IntToExpression(int value)
+        {
+            return value >= 0 ? $"+{value}" : $"{value}";
         }
 
         private static int ExpressionToInt(string expression)

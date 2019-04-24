@@ -14,18 +14,24 @@ using Newtonsoft.Json;
 
 public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceWriter log)
 {
-    log.Info("C# HTTP trigger function processed a request.");
-
     string reqContent = await req.Content.ReadAsStringAsync();
     NameValueCollection coll = HttpUtility.ParseQueryString(reqContent);
 
     var diceRoller = new DiceRoller();
-    var result = diceRoller.CalculateRoll(coll["text"]);
+    string fullResultText;
+    int total = diceRoller.CalculateRoll(coll["text"], out fullResultText);
 
     var myObj = new {
         response_type = "in_channel",
-        text = result
-        };
+        text = "<@" + coll["user_id"] + $"> rolled a total of *{total}*",
+        attachments = new object[] { 
+            new {
+                text = fullResultText,
+                color = "#36a64f",
+                mrkdwn = true
+            }
+        }
+    };
 
     var jsonToReturn = JsonConvert.SerializeObject(myObj);
 
