@@ -73,22 +73,22 @@ namespace DiceRollerUtils
                 }
             }
 
-            var fullDescription = "Breakdown:\n";
+            var fullDescription = new List<string>(); 
 
             foreach (var key in diceBucket.Keys)
             {
-                var diceLabel = key == 0 ? "modifiers:" : $"{diceBucket[key].Count}d{key}:";
-                    
-                fullDescription += $"  {diceLabel} {String.Join(" ", diceBucket[key].ToArray())}\n";
+                var diceLabel = key == 0 ? "Mod:" : $"{diceBucket[key].Count}d{key}:";
+
+                fullDescription.Add($"{diceLabel} (*{String.Join(", ", diceBucket[key].ToArray())}*)");
             }
 
             // Output the rolls that were tossed out because of advantage/disadvantage.
             if (throwAwayRolls.Count > 0)
             {
-                fullDescription += $"  Thrown out: {String.Join(" ", throwAwayRolls.ToArray())}\n";
+                fullDescription.Add($"Thrown out: (*{String.Join(", ", throwAwayRolls.ToArray())}*)\n");
             }
 
-            resultString = fullDescription;
+            resultString = $"*{totalRoll}*  : " + String.Join(", ", fullDescription.ToArray());
 
             return totalRoll;
         }

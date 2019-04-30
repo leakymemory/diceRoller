@@ -23,7 +23,7 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceW
 
     var myObj = new {
         response_type = "in_channel",
-        text = "<@" + coll["user_id"] + $"> rolled a total of *{total}*",
+        text = "<@" + coll["user_id"] + $"> roll result:",
         attachments = new object[] { 
             new {
                 text = fullResultText,
