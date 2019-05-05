@@ -15,13 +15,10 @@ namespace DiceRollerUtils
     public class DiceRoller
     {
         private readonly IRandomNumberGenerator numberGenerator;
-        private SortedDictionary<int, List<string>> diceBucket;
-        private List<int> throwAwayRolls = new List<int>();
 
         public DiceRoller(IRandomNumberGenerator numberGenerator = null)
         {
             this.numberGenerator = numberGenerator ?? new RandomNumberGenerator();
-            diceBucket = new SortedDictionary<int, List<string>>(Comparer<int>.Create((x, y) => y.CompareTo(x)));
         }
 
         public RollType GetRollType(string fullRoll)
@@ -35,14 +32,30 @@ namespace DiceRollerUtils
             return (match.Groups["disadvantage"].Length > 0) ? RollType.withDisadvantage : RollType.withAdvantage;
         }
 
-        public int CalculateRoll(string fullRoll, out string resultString)
+        public List<string> CalculateRoll(string fullRoll)
         {
-            var rollType = GetRollType(fullRoll);
+            var allRolls = new List<string>();
+
+            var individualRolls = fullRoll.Split(',');
+            foreach (var roll in individualRolls)
+            {
+                allRolls.Add(ParseRoll(roll));
+            }
+
+            return allRolls;
+        }
+
+        public string ParseRoll(string roll)
+        {
+            SortedDictionary<int, List<string>> diceBucket = new SortedDictionary<int, List<string>>(Comparer<int>.Create((x, y) => y.CompareTo(x)));
+            List<int> throwAwayRolls = new List<int>();
+
+            var rollType = GetRollType(roll);
             int totalRoll = 0;
             const string pattern = @"([+|-]?\s?\d*\/?d\d+)|([+|-]?\s?\d+)";
 
             var regExp = new Regex(pattern, RegexOptions.IgnoreCase);
-            foreach (Match m in regExp.Matches(fullRoll))
+            foreach (Match m in regExp.Matches(roll))
             {
                 string expression;
 
@@ -55,12 +68,12 @@ namespace DiceRollerUtils
 
                     for (var i = 0; i < multiplier; i++)
                     {
-                        expression = $@"{posneg}{RollDice(sides, rollType)}";
+                        expression = $@"{posneg}{RollDice(sides, rollType, throwAwayRolls)}";
 
                         int rollValue = ExpressionToInt(expression);
 
                         totalRoll += rollValue;
-                        AddToDiceBucket(sides, IntToExpression(rollValue));
+                        AddToDiceBucket(diceBucket, sides, IntToExpression(rollValue));
                     }
                 }
                 else
@@ -69,31 +82,29 @@ namespace DiceRollerUtils
                     var rollValue = ExpressionToInt(expression);
 
                     totalRoll += ExpressionToInt(expression);
-                    AddToDiceBucket(0, IntToExpression(rollValue));
+                    AddToDiceBucket(diceBucket, 0, IntToExpression(rollValue));
                 }
             }
 
-            var fullDescription = "Breakdown:\n";
+            var fullDescription = new List<string>(); 
 
             foreach (var key in diceBucket.Keys)
             {
-                var diceLabel = key == 0 ? "modifiers:" : $"{diceBucket[key].Count}d{key}:";
-                    
-                fullDescription += $"  {diceLabel} {String.Join(" ", diceBucket[key].ToArray())}\n";
+                var diceLabel = key == 0 ? "Mod:" : $"{diceBucket[key].Count}d{key}:";
+
+                fullDescription.Add($"{diceLabel} (*{String.Join(", ", diceBucket[key].ToArray())}*)");
             }
 
             // Output the rolls that were tossed out because of advantage/disadvantage.
             if (throwAwayRolls.Count > 0)
             {
-                fullDescription += $"  Thrown out: {String.Join(" ", throwAwayRolls.ToArray())}\n";
+                fullDescription.Add($"Thrown out: (*{String.Join(", ", throwAwayRolls.ToArray())}*)\n");
             }
 
-            resultString = fullDescription;
-
-            return totalRoll;
+            return $"*{totalRoll}*  : " + String.Join(", ", fullDescription.ToArray());
         }
 
-        private void AddToDiceBucket(int sides, string expression)
+        private void AddToDiceBucket(SortedDictionary<int, List<string>> diceBucket, int sides, string expression)
         {
             if (diceBucket.TryGetValue(sides, out List<string> rolls))
             {
@@ -105,7 +116,7 @@ namespace DiceRollerUtils
             }
         }
 
-        private int RollDice(int sides, RollType rollType)
+        private int RollDice(int sides, RollType rollType, List<int> throwAwayRolls)
         {
             int roll = this.numberGenerator.Generate(1, sides + 1);
 
