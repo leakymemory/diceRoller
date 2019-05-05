@@ -124,8 +124,8 @@ namespace DiceRollerUtils
             {
                 int secondRoll = this.numberGenerator.Generate(1, sides + 1);
                 if (rollType == RollType.withAdvantage)
-                    {
-                        throwAwayRolls.Add((secondRoll > roll) ? roll : secondRoll);
+                {
+                    throwAwayRolls.Add((secondRoll > roll) ? roll : secondRoll);
                     roll = (secondRoll > roll) ? secondRoll : roll;
                 }
                 else
