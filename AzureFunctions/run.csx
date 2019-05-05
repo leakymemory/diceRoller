@@ -18,15 +18,14 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceW
     NameValueCollection coll = HttpUtility.ParseQueryString(reqContent);
 
     var diceRoller = new DiceRoller();
-    string fullResultText;
-    int total = diceRoller.CalculateRoll(coll["text"], out fullResultText);
+    List<string> diceRolls = diceRoller.CalculateRoll(coll["text"]);
 
     var myObj = new {
         response_type = "in_channel",
-        text = "<@" + coll["user_id"] + $"> roll result:",
+        text = "<@" + coll["user_id"] + $"> roll results:",
         attachments = new object[] { 
             new {
-                text = fullResultText,
+                text = string.Join("\n", diceRolls),
                 color = "#36a64f",
                 mrkdwn = true
             }
