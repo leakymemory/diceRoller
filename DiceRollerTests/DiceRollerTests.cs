@@ -172,6 +172,9 @@ namespace DiceRollerTests
             Assert.AreEqual(RollType.withDisadvantage, diceRoller.GetRollType("d20 + 4 dis"));
             Assert.AreEqual(RollType.withDisadvantage, diceRoller.GetRollType("d20 + 4 /dis"));
             Assert.AreEqual(RollType.withDisadvantage, diceRoller.GetRollType("d20 + 4 with disadvantage"));
+            Assert.AreEqual(RollType.showUsage, diceRoller.GetRollType("/?"));
+            Assert.AreEqual(RollType.showUsage, diceRoller.GetRollType("-?"));
+            Assert.AreEqual(RollType.showUsage, diceRoller.GetRollType("help"));
         }
     }
 }

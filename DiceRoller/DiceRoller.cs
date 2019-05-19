@@ -9,7 +9,8 @@ namespace DiceRollerUtils
     {
         normalRoll,
         withAdvantage,
-        withDisadvantage
+        withDisadvantage,
+        showUsage
     };
 
     public class DiceRoller
@@ -23,11 +24,14 @@ namespace DiceRollerUtils
 
         public RollType GetRollType(string fullRoll)
         {
-            var match = Regex.Match(fullRoll, @"(?<advantage>\s+\/?adv)|(?<disadvantage>\s+\/?dis)", RegexOptions.IgnoreCase);
+            var match = Regex.Match(fullRoll, @"(?<usage>\?|help)|(?<advantage>\s+\/?adv)|(?<disadvantage>\s+\/?dis)", RegexOptions.IgnoreCase);
             if (match.Length == 0)
             {
                 return RollType.normalRoll;
             }
+
+            if (match.Groups["usage"].Length > 0)
+                return RollType.showUsage;
 
             return (match.Groups["disadvantage"].Length > 0) ? RollType.withDisadvantage : RollType.withAdvantage;
         }
@@ -51,6 +55,9 @@ namespace DiceRollerUtils
             List<int> throwAwayRolls = new List<int>();
 
             var rollType = GetRollType(roll);
+            if (rollType == RollType.showUsage || roll.Equals(string.Empty))
+                return "/roll [diceType] +/- modifier [adv|dis]\nExamples:\n /roll d20 + 5 adv\n /roll 2d10 + 1d6 + 8";
+
             int totalRoll = 0;
             const string pattern = @"([+|-]?\s?\d*\/?d\d+)|([+|-]?\s?\d+)";
 
