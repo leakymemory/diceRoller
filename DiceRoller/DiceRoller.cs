@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
+[assembly: InternalsVisibleTo("DiceRollerTests")]
 namespace DiceRollerUtils
 {
     public enum RollType
@@ -29,20 +31,6 @@ namespace DiceRollerUtils
             this.numberGenerator = numberGenerator ?? new RandomNumberGenerator();
         }
 
-        public RollType GetRollType(string fullRoll)
-        {
-            var match = Regex.Match(fullRoll, @"(?<usage>\?|help)|(?<advantage>\s+\/?adv)|(?<disadvantage>\s+\/?dis)", RegexOptions.IgnoreCase);
-            if (match.Length == 0)
-            {
-                return RollType.normalRoll;
-            }
-
-            if (match.Groups["usage"].Length > 0)
-                return RollType.showUsage;
-
-            return (match.Groups["disadvantage"].Length > 0) ? RollType.withDisadvantage : RollType.withAdvantage;
-        }
-
         public List<string> CalculateRoll(string fullRoll)
         {
             var allRolls = new List<string>();
@@ -56,7 +44,21 @@ namespace DiceRollerUtils
             return allRolls;
         }
 
-        public string ParseRoll(string roll)
+        internal RollType GetRollType(string fullRoll)
+        {
+            var match = Regex.Match(fullRoll, @"(?<usage>\?|help)|(?<advantage>\s+\/?adv)|(?<disadvantage>\s+\/?dis)", RegexOptions.IgnoreCase);
+            if (match.Length == 0)
+            {
+                return RollType.normalRoll;
+            }
+
+            if (match.Groups["usage"].Length > 0)
+                return RollType.showUsage;
+
+            return (match.Groups["disadvantage"].Length > 0) ? RollType.withDisadvantage : RollType.withAdvantage;
+        }
+
+        internal string ParseRoll(string roll)
         {
             var rollType = GetRollType(roll);
             if (rollType == RollType.showUsage || roll.Equals(string.Empty))
@@ -89,7 +91,7 @@ namespace DiceRollerUtils
             return $"{ParseForLabel(roll)} *{totalRoll}*  :  " + String.Join(", ", fullDescription.ToArray());
         }
 
-        public SortedDictionary<int, List<string>> BuildDiceBucket(string roll, RollType rollType, List<int> throwAwayRolls)
+        internal SortedDictionary<int, List<string>> BuildDiceBucket(string roll, RollType rollType, List<int> throwAwayRolls)
         {
             SortedDictionary<int, List<string>> diceBucket = new SortedDictionary<int, List<string>>(Comparer<int>.Create((x, y) => y.CompareTo(x)));
 
@@ -125,7 +127,7 @@ namespace DiceRollerUtils
             return diceBucket;
         }
 
-        public string ParseForLabel(string roll)
+        internal string ParseForLabel(string roll)
         {
             var labelMatch = Regex.Match(roll, @"(?<label>[^:]+:)", RegexOptions.IgnoreCase);
             if (labelMatch.Length > 0)
