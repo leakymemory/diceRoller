@@ -179,7 +179,7 @@ namespace DiceRollerUtils
 
         private static int ExpressionToInt(string expression)
         {
-            var dt = new DataTable();
+            using var dt = new DataTable();
             return (int)dt.Compute(expression, "");
         }
     }
