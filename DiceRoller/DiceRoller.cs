@@ -68,6 +68,7 @@ namespace DiceRollerUtils
             SortedDictionary<int, List<string>> diceBucket = BuildDiceBucket(roll, rollType, throwAwayRolls);
 
             var fullDescription = new List<string>();
+            string criticalMessage = string.Empty;
             int totalRoll = 0;
 
             foreach (var key in diceBucket.Keys)
@@ -78,6 +79,12 @@ namespace DiceRollerUtils
 
                 foreach (string value in diceBucket[key].ToArray())
                 {
+                    // We really only want to check for criticals when a single d20 is rolled.
+                    if (key == 20 && diceBucket[key].Count == 1)
+                    {
+                        criticalMessage = ParseForCritical(value);
+                    }
+
                     totalRoll += ExpressionToInt(value);
                 }
             }
@@ -88,7 +95,7 @@ namespace DiceRollerUtils
                 fullDescription.Add($"Thrown out: (*{String.Join(", ", throwAwayRolls.ToArray())}*)\n");
             }
 
-            return $"{ParseForLabel(roll)} *{totalRoll}*  :  " + String.Join(", ", fullDescription.ToArray());
+            return $"{criticalMessage}{ParseForLabel(roll)} *{totalRoll}*  :  " + String.Join(", ", fullDescription.ToArray());
         }
 
         internal SortedDictionary<int, List<string>> BuildDiceBucket(string roll, RollType rollType, List<int> throwAwayRolls)
@@ -138,6 +145,16 @@ namespace DiceRollerUtils
             return "Total:";
         }
 
+        internal string ParseForCritical(string rollValue)
+        {
+            if (rollValue.Equals("+20"))
+                return "_Critical Success!_ ";
+            if (rollValue.Equals("+1"))
+                return "_Critical Fail!_ ";
+
+            return string.Empty;
+        }
+
         private void AddToDiceBucket(SortedDictionary<int, List<string>> diceBucket, int sides, string expression)
         {
             if (diceBucket.TryGetValue(sides, out List<string> rolls))
@@ -179,8 +196,8 @@ namespace DiceRollerUtils
 
         private static int ExpressionToInt(string expression)
         {
-            using var dt = new DataTable();
-            return (int)dt.Compute(expression, "");
+            using (var dt = new DataTable())
+                return (int)dt.Compute(expression, "");
         }
     }
 }

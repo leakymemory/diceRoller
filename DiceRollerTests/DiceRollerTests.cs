@@ -23,6 +23,17 @@ namespace DiceRollerTests
         }
 
         [Test()]
+        public void ParseRoll_BasicCriticalValidation()
+        {
+            var diceRoller = new DiceRoller(numberGenerator);
+            numberGenerator.QueuedResults.Enqueue(20);
+            numberGenerator.QueuedResults.Enqueue(1);
+
+            var roll = diceRoller.ParseRoll("d20 +3 /advantage");
+            Assert.That(roll == "_Critical Success!_ Total: *23*  :  1d20: (*+20*), Mod: (*+3*)");
+        }
+
+        [Test()]
         public void ParseForLabel_VarietyOfLabels()
         {
             var diceRoller = new DiceRoller(numberGenerator);
@@ -181,6 +192,16 @@ namespace DiceRollerTests
             Assert.That(bucket[20].Count == 1);
             Assert.That(bucket[20].ToArray()[0] == "+3");
             Assert.That(throwAway.Count == 1);
+        }
+
+        [Test()]
+        public void ParseRoll_BasicCriticalRoll()
+        {
+            var diceRoller = new DiceRoller(numberGenerator);
+
+            Assert.That(diceRoller.ParseForCritical("+20").Equals("_Critical Success!_ "));
+            Assert.That(diceRoller.ParseForCritical("+1").Equals("_Critical Fail!_ "));
+            Assert.That(diceRoller.ParseForCritical("+15").Equals(string.Empty));
         }
 
         [Test()]
