@@ -30,7 +30,7 @@ namespace DiceRollerTests
             numberGenerator.QueuedResults.Enqueue(1);
 
             var roll = diceRoller.ParseRoll("d20 +3 /advantage");
-            Assert.That(roll == "_Critical Success!_ Total: *23*  :  1d20: (*+20*), Mod: (*+3*)");
+            Assert.That(roll == "_Critical Success!_ Total: *23*  :  1d20: (*+20*), Mod: (*+3*), Thrown out: (*1*)");
         }
 
         [Test()]
@@ -52,7 +52,7 @@ namespace DiceRollerTests
 
             var bucket = diceRoller.BuildDiceBucket(@"/d20 + 5 -3-/d10 + 7-2", RollType.normalRoll, new List<int>());
             Assert.That(bucket.Count == 3);
-            Assert.That(bucket[20].Count == 1); 
+            Assert.That(bucket[20].Count == 1);
             Assert.That(bucket[20].ToArray()[0] == "+10");
 
             Assert.That(bucket[10].Count == 1);
@@ -195,16 +195,6 @@ namespace DiceRollerTests
         }
 
         [Test()]
-        public void ParseRoll_BasicCriticalRoll()
-        {
-            var diceRoller = new DiceRoller(numberGenerator);
-
-            Assert.That(diceRoller.ParseForCritical("+20").Equals("_Critical Success!_ "));
-            Assert.That(diceRoller.ParseForCritical("+1").Equals("_Critical Fail!_ "));
-            Assert.That(diceRoller.ParseForCritical("+15").Equals(string.Empty));
-        }
-
-        [Test()]
         public void GetRollType_ValidatePossibilities()
         {
             var diceRoller = new DiceRoller(numberGenerator);
@@ -219,6 +209,17 @@ namespace DiceRollerTests
             Assert.AreEqual(RollType.showUsage, diceRoller.GetRollType("/?"));
             Assert.AreEqual(RollType.showUsage, diceRoller.GetRollType("-?"));
             Assert.AreEqual(RollType.showUsage, diceRoller.GetRollType("help"));
+        }
+
+
+        [Test()]
+        public void ParseRoll_BasicCriticalRoll()
+        {
+            var diceRoller = new DiceRoller(numberGenerator);
+
+            Assert.That(diceRoller.ParseForCritical("+20").Equals("_Critical Success!_ "));
+            Assert.That(diceRoller.ParseForCritical("+1").Equals("_Critical Fail!_ "));
+            Assert.That(diceRoller.ParseForCritical("+15").Equals(string.Empty));
         }
     }
 }

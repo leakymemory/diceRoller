@@ -21,7 +21,7 @@ namespace DiceRollerUtils
 
         private readonly string usageText = @"
 /roll [label]: [diceType(s)] +/- [modifier] [adv|dis]
-  Examples:
+Examples:
     /roll Attack: d20 +5 adv
     /roll Damage: 2d10 + 1d6 +8
     /roll 12d6";
@@ -92,7 +92,7 @@ namespace DiceRollerUtils
             // Output the rolls that were tossed out because of advantage/disadvantage.
             if (throwAwayRolls.Count > 0)
             {
-                fullDescription.Add($"Thrown out: (*{String.Join(", ", throwAwayRolls.ToArray())}*)\n");
+                fullDescription.Add($"Thrown out: (*{String.Join(", ", throwAwayRolls.ToArray())}*)");
             }
 
             return $"{criticalMessage}{ParseForLabel(roll)} *{totalRoll}*  :  " + String.Join(", ", fullDescription.ToArray());
