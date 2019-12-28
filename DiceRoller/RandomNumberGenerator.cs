@@ -2,7 +2,7 @@
 
 namespace DiceRollerUtils
 {
-    public class RandomNumberGenerator : IRandomNumberGenerator
+    internal class RandomNumberGenerator : IRandomNumberGenerator
     {
         private static readonly Random Random = new Random();
 

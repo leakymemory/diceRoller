@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
+[assembly: InternalsVisibleTo("DiceRollerTests")]
 namespace DiceRollerUtils
 {
     public enum RollType
@@ -19,7 +21,7 @@ namespace DiceRollerUtils
 
         private readonly string usageText = @"
 /roll [label]: [diceType(s)] +/- [modifier] [adv|dis]
-  Examples:
+Examples:
     /roll Attack: d20 +5 adv
     /roll Damage: 2d10 + 1d6 +8
     /roll 12d6";
@@ -27,20 +29,6 @@ namespace DiceRollerUtils
         public DiceRoller(IRandomNumberGenerator numberGenerator = null)
         {
             this.numberGenerator = numberGenerator ?? new RandomNumberGenerator();
-        }
-
-        public RollType GetRollType(string fullRoll)
-        {
-            var match = Regex.Match(fullRoll, @"(?<usage>\?|help)|(?<advantage>\s+\/?adv)|(?<disadvantage>\s+\/?dis)", RegexOptions.IgnoreCase);
-            if (match.Length == 0)
-            {
-                return RollType.normalRoll;
-            }
-
-            if (match.Groups["usage"].Length > 0)
-                return RollType.showUsage;
-
-            return (match.Groups["disadvantage"].Length > 0) ? RollType.withDisadvantage : RollType.withAdvantage;
         }
 
         public List<string> CalculateRoll(string fullRoll)
@@ -56,7 +44,21 @@ namespace DiceRollerUtils
             return allRolls;
         }
 
-        public string ParseRoll(string roll)
+        internal RollType GetRollType(string fullRoll)
+        {
+            var match = Regex.Match(fullRoll, @"(?<usage>\?|help)|(?<advantage>\s+\/?adv)|(?<disadvantage>\s+\/?dis)", RegexOptions.IgnoreCase);
+            if (match.Length == 0)
+            {
+                return RollType.normalRoll;
+            }
+
+            if (match.Groups["usage"].Length > 0)
+                return RollType.showUsage;
+
+            return (match.Groups["disadvantage"].Length > 0) ? RollType.withDisadvantage : RollType.withAdvantage;
+        }
+
+        internal string ParseRoll(string roll)
         {
             var rollType = GetRollType(roll);
             if (rollType == RollType.showUsage || roll.Equals(string.Empty))
@@ -66,6 +68,7 @@ namespace DiceRollerUtils
             SortedDictionary<int, List<string>> diceBucket = BuildDiceBucket(roll, rollType, throwAwayRolls);
 
             var fullDescription = new List<string>();
+            string criticalMessage = string.Empty;
             int totalRoll = 0;
 
             foreach (var key in diceBucket.Keys)
@@ -76,6 +79,12 @@ namespace DiceRollerUtils
 
                 foreach (string value in diceBucket[key].ToArray())
                 {
+                    // We really only want to check for criticals when a single d20 is rolled.
+                    if (key == 20 && diceBucket[key].Count == 1)
+                    {
+                        criticalMessage = ParseForCritical(value);
+                    }
+
                     totalRoll += ExpressionToInt(value);
                 }
             }
@@ -83,13 +92,13 @@ namespace DiceRollerUtils
             // Output the rolls that were tossed out because of advantage/disadvantage.
             if (throwAwayRolls.Count > 0)
             {
-                fullDescription.Add($"Thrown out: (*{String.Join(", ", throwAwayRolls.ToArray())}*)\n");
+                fullDescription.Add($"Thrown out: (*{String.Join(", ", throwAwayRolls.ToArray())}*)");
             }
 
-            return $"{ParseForLabel(roll)} *{totalRoll}*  :  " + String.Join(", ", fullDescription.ToArray());
+            return $"{criticalMessage}{ParseForLabel(roll)} *{totalRoll}*  :  " + String.Join(", ", fullDescription.ToArray());
         }
 
-        public SortedDictionary<int, List<string>> BuildDiceBucket(string roll, RollType rollType, List<int> throwAwayRolls)
+        internal SortedDictionary<int, List<string>> BuildDiceBucket(string roll, RollType rollType, List<int> throwAwayRolls)
         {
             SortedDictionary<int, List<string>> diceBucket = new SortedDictionary<int, List<string>>(Comparer<int>.Create((x, y) => y.CompareTo(x)));
 
@@ -125,7 +134,7 @@ namespace DiceRollerUtils
             return diceBucket;
         }
 
-        public string ParseForLabel(string roll)
+        internal string ParseForLabel(string roll)
         {
             var labelMatch = Regex.Match(roll, @"(?<label>[^:]+:)", RegexOptions.IgnoreCase);
             if (labelMatch.Length > 0)
@@ -134,6 +143,16 @@ namespace DiceRollerUtils
             }
 
             return "Total:";
+        }
+
+        internal string ParseForCritical(string rollValue)
+        {
+            if (rollValue.Equals("+20"))
+                return "_Critical Success!_ ";
+            if (rollValue.Equals("+1"))
+                return "_Critical Fail!_ ";
+
+            return string.Empty;
         }
 
         private void AddToDiceBucket(SortedDictionary<int, List<string>> diceBucket, int sides, string expression)
@@ -177,8 +196,8 @@ namespace DiceRollerUtils
 
         private static int ExpressionToInt(string expression)
         {
-            var dt = new DataTable();
-            return (int)dt.Compute(expression, "");
+            using (var dt = new DataTable())
+                return (int)dt.Compute(expression, "");
         }
     }
 }
