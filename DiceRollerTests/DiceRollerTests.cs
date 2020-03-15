@@ -202,7 +202,7 @@ namespace DiceRollerTests
             numberGenerator.QueuedResults.Enqueue(2);
             numberGenerator.QueuedResults.Enqueue(3);
 
-            var bucket = diceRoller.BuildDiceBucket("3df", RollType.normalRoll, new List<int>());
+            var bucket = diceRoller.BuildDiceBucket("3dF", RollType.normalRoll, new List<int>());
             Assert.That(bucket.Count == 1);
             Assert.That(bucket[3].ToArray()[0] == "-1");
             Assert.That(bucket[3].ToArray()[1] == "+0");

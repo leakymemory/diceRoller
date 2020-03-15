@@ -117,7 +117,7 @@ Examples:
                     string posneg = diceMatch.Groups["posneg"].Value == "-" ? "-" : "+";
                     int multiplier = String.IsNullOrWhiteSpace(diceMatch.Groups["multiplier"].Value) ? 1 : Int32.Parse(diceMatch.Groups["multiplier"].Value);
 
-                    if (diceMatch.Groups["sides"].Value == "f")
+                    if (diceMatch.Groups["sides"].Value.ToLower() == "f")
                     {
                         isFudgeDice = true;
                         sides = 3;
