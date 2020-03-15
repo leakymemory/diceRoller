@@ -195,6 +195,21 @@ namespace DiceRollerTests
         }
 
         [Test()]
+        public void BuildDiceBucket_BasicFateDice()
+        {
+            var diceRoller = new DiceRoller(numberGenerator);
+            numberGenerator.QueuedResults.Enqueue(0);
+            numberGenerator.QueuedResults.Enqueue(1);
+            numberGenerator.QueuedResults.Enqueue(2);
+
+            var bucket = diceRoller.BuildDiceBucket("3df", RollType.normalRoll, new List<int>());
+            Assert.That(bucket.Count == 1);
+            Assert.That(bucket[3].ToArray()[0] == "-1");
+            Assert.That(bucket[3].ToArray()[1] == "+0");
+            Assert.That(bucket[3].ToArray()[2] == "+1");
+        }
+
+        [Test()]
         public void GetRollType_ValidatePossibilities()
         {
             var diceRoller = new DiceRoller(numberGenerator);

@@ -102,24 +102,35 @@ Examples:
         {
             SortedDictionary<int, List<string>> diceBucket = new SortedDictionary<int, List<string>>(Comparer<int>.Create((x, y) => y.CompareTo(x)));
 
-            const string pattern = @"([+|-]?\s?\d*\/?d\d+)|([+|-]?\s?\d+)";
+            const string pattern = @"([+|-]?\s?\d*\/?df|d\d+)|([+|-]?\s?\d+)";
 
             var regExp = new Regex(pattern, RegexOptions.IgnoreCase);
             foreach (Match m in regExp.Matches(roll))
             {
                 string expression;
+                bool isFudgeDice = false;
+                int sides = 0;
 
-                var diceMatch = Regex.Match(m.Value, @"(?<posneg>[+|-]?)\s?\/?(?<multiplier>[\d]+)?d(?<sides>\d+)", RegexOptions.IgnoreCase);
+                var diceMatch = Regex.Match(m.Value, @"(?<posneg>[+|-]?)\s?\/?(?<multiplier>[\d]+)?d(?<sides>\d+|f)", RegexOptions.IgnoreCase);
                 if (diceMatch.Length > 0)
                 {
                     string posneg = diceMatch.Groups["posneg"].Value == "-" ? "-" : "+";
                     int multiplier = String.IsNullOrWhiteSpace(diceMatch.Groups["multiplier"].Value) ? 1 : Int32.Parse(diceMatch.Groups["multiplier"].Value);
-                    int sides = Int32.Parse(diceMatch.Groups["sides"].Value);
+
+                    if (diceMatch.Groups["sides"].Value == "f")
+                    {
+                        isFudgeDice = true;
+                        sides = 3;
+                    }
+                    else
+                    {
+                        sides = Int32.Parse(diceMatch.Groups["sides"].Value);
+                    }
 
                     for (var i = 0; i < multiplier; i++)
                     {
                         expression = $@"{posneg}{RollDice(sides, rollType, throwAwayRolls)}";
-                        AddToDiceBucket(diceBucket, sides, expression);
+                        AddToDiceBucket(diceBucket, sides, expression, isFudgeDice);
                     }
                 }
                 else
@@ -127,7 +138,7 @@ Examples:
                     expression = m.Value;
                     var rollValue = ExpressionToInt(expression);
 
-                    AddToDiceBucket(diceBucket, 0, IntToExpression(rollValue));
+                    AddToDiceBucket(diceBucket, 0, IntToExpression(rollValue), isFudgeDice:false);
                 }
             }
 
@@ -155,15 +166,33 @@ Examples:
             return string.Empty;
         }
 
-        private void AddToDiceBucket(SortedDictionary<int, List<string>> diceBucket, int sides, string expression)
+        private void AddToDiceBucket(SortedDictionary<int, List<string>> diceBucket, int sides, string expression, bool isFudgeDice)
         {
+            string translatedExpression = expression;
+
+            if (isFudgeDice)
+            {
+                switch (expression)
+                {
+                    case "+0":
+                        translatedExpression = "-1";
+                        break;
+                    case "+1":
+                        translatedExpression = "+0";
+                        break;
+                    case "+2":
+                        translatedExpression = "+1";
+                        break;
+                }
+            }
+
             if (diceBucket.TryGetValue(sides, out List<string> rolls))
             {
-                rolls.Add(expression);
+                rolls.Add(translatedExpression);
             }
             else
             {
-                diceBucket.Add(sides, new List<string> { expression });
+                diceBucket.Add(sides, new List<string> { translatedExpression });
             }
         }
 
