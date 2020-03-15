@@ -174,13 +174,13 @@ Examples:
             {
                 switch (expression)
                 {
-                    case "+0":
+                    case "+1":
                         translatedExpression = "-1";
                         break;
-                    case "+1":
+                    case "+2":
                         translatedExpression = "+0";
                         break;
-                    case "+2":
+                    case "+3":
                         translatedExpression = "+1";
                         break;
                 }
