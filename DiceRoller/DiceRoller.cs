@@ -102,7 +102,7 @@ Examples:
         {
             SortedDictionary<int, List<string>> diceBucket = new SortedDictionary<int, List<string>>(Comparer<int>.Create((x, y) => y.CompareTo(x)));
 
-            const string pattern = @"([+|-]?\s?\d*\/?df|d\d+)|([+|-]?\s?\d+)";
+            const string pattern = @"([+|-]?\d*df)|([+|-]?\s?\d*\/?d\d+)|([+|-]?\s?\d+)";
 
             var regExp = new Regex(pattern, RegexOptions.IgnoreCase);
             foreach (Match m in regExp.Matches(roll))
