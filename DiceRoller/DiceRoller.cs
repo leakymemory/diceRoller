@@ -102,10 +102,15 @@ Examples:
         {
             SortedDictionary<int, List<string>> diceBucket = new SortedDictionary<int, List<string>>(Comparer<int>.Create((x, y) => y.CompareTo(x)));
 
-            const string pattern = @"([+|-]?\d*df)|([+|-]?\s?\d*\/?d\d+)|([+|-]?\s?\d+)";
+            const string pattern = @"([+|-]?\s?\d*df)|([+|-]?\s?\d*\/?d\d+)|([+|-]?\s?\d+)";
+            string modifiedRoll = roll;
+
+            // Alias a roll for Fate
+            if (roll.Contains("fate", StringComparison.CurrentCultureIgnoreCase))
+                modifiedRoll = roll.Replace("fate", "4df", StringComparison.OrdinalIgnoreCase);
 
             var regExp = new Regex(pattern, RegexOptions.IgnoreCase);
-            foreach (Match m in regExp.Matches(roll))
+            foreach (Match m in regExp.Matches(modifiedRoll))
             {
                 string expression;
                 bool isFudgeDice = false;
