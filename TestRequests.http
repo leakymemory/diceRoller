@@ -1,0 +1,13 @@
+
+POST http://0.0.0.0:7071/api/rolldice?text=d20 HTTP/1.1
+content-type: application/json
+
+{
+}
+
+
+POST https://leakydiceroller.azurewebsites.net/api/rolldice?code=9LikibdrEFWNe56AbZKEYArjzvfUGe1oqftqs6IYaravTQT5sAG0VA==&text=d20 HTTP/1.1
+content-type: application/json
+
+{
+}

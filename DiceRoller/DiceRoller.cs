@@ -143,7 +143,7 @@ Examples:
                     expression = m.Value;
                     var rollValue = ExpressionToInt(expression);
 
-                    AddToDiceBucket(diceBucket, 0, IntToExpression(rollValue), isFudgeDice:false);
+                    AddToDiceBucket(diceBucket, 0, IntToExpression(rollValue), isFudgeDice: false);
                 }
             }
 
@@ -230,8 +230,9 @@ Examples:
 
         private static int ExpressionToInt(string expression)
         {
-            using (var dt = new DataTable())
-                return (int)dt.Compute(expression, "");
+            using var dt = new DataTable();
+
+            return (int)dt.Compute(expression, "");
         }
     }
 }
