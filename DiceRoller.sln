@@ -1,54 +1,31 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.28803.202
+VisualStudioVersion = 16.0.810.9
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AzureFunctions", "AzureFunctions", "{498C755B-2436-44F3-AAE5-8A76236DBF70}"
-	ProjectSection(SolutionItems) = preProject
-		AzureFunctions\run.csx = AzureFunctions\run.csx
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiceRoller", "DiceRoller\DiceRoller.csproj", "{7571AE23-C4EF-4D2D-A610-EF5F6AD0953D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiceRoller", "DiceRoller\DiceRoller.csproj", "{F6F1F026-DBC2-4B68-B216-0BEEC676DE77}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiceRollerTests", "DiceRollerTests\DiceRollerTests.csproj", "{A04263DE-2B44-49FE-BE08-429B2BD51BE3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiceRollerTests", "DiceRollerTests\DiceRollerTests.csproj", "{D24F307B-E726-4426-AE28-3E70E664C63C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
-		Default|Any CPU = Default|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B0138A7A-844E-4BAA-B95F-C139B6D90611}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B0138A7A-844E-4BAA-B95F-C139B6D90611}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B0138A7A-844E-4BAA-B95F-C139B6D90611}.Default|Any CPU.ActiveCfg = Debug|Any CPU
-		{B0138A7A-844E-4BAA-B95F-C139B6D90611}.Default|Any CPU.Build.0 = Debug|Any CPU
-		{B0138A7A-844E-4BAA-B95F-C139B6D90611}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B0138A7A-844E-4BAA-B95F-C139B6D90611}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F6F1F026-DBC2-4B68-B216-0BEEC676DE77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F6F1F026-DBC2-4B68-B216-0BEEC676DE77}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F6F1F026-DBC2-4B68-B216-0BEEC676DE77}.Default|Any CPU.ActiveCfg = Debug|Any CPU
-		{F6F1F026-DBC2-4B68-B216-0BEEC676DE77}.Default|Any CPU.Build.0 = Debug|Any CPU
-		{F6F1F026-DBC2-4B68-B216-0BEEC676DE77}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F6F1F026-DBC2-4B68-B216-0BEEC676DE77}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A04263DE-2B44-49FE-BE08-429B2BD51BE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A04263DE-2B44-49FE-BE08-429B2BD51BE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A04263DE-2B44-49FE-BE08-429B2BD51BE3}.Default|Any CPU.ActiveCfg = Debug|Any CPU
-		{A04263DE-2B44-49FE-BE08-429B2BD51BE3}.Default|Any CPU.Build.0 = Debug|Any CPU
-		{A04263DE-2B44-49FE-BE08-429B2BD51BE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A04263DE-2B44-49FE-BE08-429B2BD51BE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7571AE23-C4EF-4D2D-A610-EF5F6AD0953D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7571AE23-C4EF-4D2D-A610-EF5F6AD0953D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7571AE23-C4EF-4D2D-A610-EF5F6AD0953D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7571AE23-C4EF-4D2D-A610-EF5F6AD0953D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D24F307B-E726-4426-AE28-3E70E664C63C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D24F307B-E726-4426-AE28-3E70E664C63C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D24F307B-E726-4426-AE28-3E70E664C63C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D24F307B-E726-4426-AE28-3E70E664C63C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {ADDF2B93-5D97-49FC-BDF1-78537E52B715}
-	EndGlobalSection
-	GlobalSection(MonoDevelopProperties) = preSolution
-		Policies = $0
-		$0.DotNetNamingPolicy = $1
-		$1.DirectoryNamespaceAssociation = PrefixedHierarchical
-		$0.StandardHeader = $2
-		$0.VersionControlPolicy = $3
+		SolutionGuid = {83E56663-B128-4136-B8C6-884CB419D538}
 	EndGlobalSection
 EndGlobal

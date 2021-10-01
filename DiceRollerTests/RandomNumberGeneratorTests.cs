@@ -28,7 +28,7 @@ namespace DiceRollerTests
             double perfect = Convert.ToDouble(sampleSize) / Convert.ToDouble(numberOfSides);
             foreach (var countInBucket in buckets)
             {
-                var result = (double)countInBucket / perfect;
+                var result = countInBucket / perfect;
                 Debug.WriteLine("Count: " + countInBucket + " : " + (100 - Math.Abs(result - 1)));
                 Assert.IsTrue((100 - Math.Abs(result - 1)) >= 99.9);
             }
